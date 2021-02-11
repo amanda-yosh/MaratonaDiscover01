@@ -20,31 +20,18 @@ const Modal = {
     // função toogle, liga ou deliga, pode substituir as funçoes acima
 }
 
-const transactions = [
-    {
-        description: 'Luz',
-        amount: -500000, // quando tratamos dinheiro nao colocamos pontos virgulas e nem nada, usamos estratégias posteriores
-        date: '23/01/2021',
+const Storage = {
+    get() {
+        return JSON.parse(localStorage.getItem("dev.finances:transactions")) || []
     },
-    {
-        description: 'Website',
-        amount: 50000,
-        date: '23/01/2021',
-    },
-    {
-        description: 'Internet',
-        amount: 20000,
-        date: '23/01/2021',
-    },
-    {
-        description: 'App',
-        amount: 200000,
-        date: '23/01/2021',
+
+    set(transactions) {
+        localStorage.setItem("dev.finances:transactions", JSON.stringify(transactions))
     }
-] // isto é um array, uma colecao, uma lista. do que? de objetos
+}
 
 const Transaction = {
-    all: transactions, // adicionar transações, entao estou agrupando os transactions aqui dentro, atalho
+    all: Storage.get(),
     add(transaction){ // funcionalidade de adicionar uma transação
         Transaction.all.push(transaction) // push é uma funcionalidade atrelada a arrays, vai adicionar a todas as transações essa que eu vou puxar
         App.reload()
@@ -92,13 +79,14 @@ const DOM = {
     // responsável por adicionar a transacao
     addTransaction(transaction, index) {
         const tr = document.createElement('tr') // cria a tr, o elemento
-        tr.innerHTML = DOM.innerHTMLTransaction(transaction) // recebendo um html
+        tr.innerHTML = DOM.innerHTMLTransaction(transaction, index) // recebendo um html
+        tr.dataset.index = index
 
         DOM.transactionsContainer.appendChild(tr) // pegando a variavel e adicionando a funcionalidade de appendChild
 
     },
 
-    innerHTMLTransaction(transaction) {
+    innerHTMLTransaction(transaction, index) {
         // variavel inteligente
         const CSSclass = transaction.amount > 0 ? "income" : "expense"
 
@@ -109,7 +97,7 @@ const DOM = {
         <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
-            <img src="./assets/minus.svg" alt="Remover transação">
+            <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
         </td>
         `
 
@@ -136,6 +124,20 @@ const DOM = {
 
 // coisas uteis, ex.: formatação da moeda
 const Utils = {
+    formatAmount(value) {
+        value = Number(value) * 100
+        // posso usar
+        // value = Number(value.replace(/\,\./g,""))*100
+
+        return value
+    },
+
+    formatDate(date) {
+        const splittedDate = date.split("-") // definindo o separador da string
+
+        return `${splittedDate[2]}/${splittedDate[1]}/${splittedDate[0]}` // dia/mes/ano
+    },
+
     formatCurrency(value) {
         const signal = Number(value) < 0 ? "-" : "" // sinal
 
@@ -154,18 +156,84 @@ const Utils = {
     }
 }
 
+const Form = {
+    description: document.querySelector('input#description'),
+    amount: document.querySelector('input#amount'),
+    date: document.querySelector('input#date'),
+
+    getValues() {
+        return {
+            description: Form.description.value,
+            amount: Form.amount.value,
+            date: Form.date.value
+        }
+    },
+
+    // passo de validar campos
+    validateFields() {
+        // verificar se as informações foram preenchidas, se os campos estão vazios ou não
+        const {description, amount, date} = Form.getValues()
+
+        if( description.trim() === "" || // verificando se o description esta vazio ou
+            amount.trim() === "" || // se o amount está vazio, ou
+            date.trim() === "" ) { // se o date esta vazio
+                throw new Error("Por favor, preencha todos os campos") // new signifia que estou criando um novo objeto, nesse caso um objeto de erro com uma mensagem
+        } // trim -> limpeza de espaços vazios
+    },
+
+    formatValues() {
+        let {description, amount, date} = Form.getValues()
+
+        amount = Utils.formatAmount(amount)
+
+        date = Utils.formatDate(date)
+
+        return {
+            description,
+            amount,
+            date
+        }
+    },
+
+    saveTransaction(transaction) {
+        Transaction.add(transaction)
+    },
+
+    clearFields() {
+        Form.description.value = ""
+        Form.amount.value = ""
+        Form.date.value = ""
+    },
+
+    submit(event) {
+        event.preventDefault() // interrompe o corportamento padrão de enviar o formulário
+
+        try {
+            Form.validateFields()
+            const transaction = Form.formatValues() // formatar os dados para salvar
+            Form.saveTransaction() // salvar
+            Form.clearFields() // apagar os dados do formulario
+            Modal.close() // modal feche
+
+        } catch (error) {
+            alert(error.message)
+        }
+    }
+}
+
 // aplicação com 2 funcionalidades
 const App = {
     init() {
 
-        Transaction.all.forEach(transaction => {
+        Transaction.all.forEach((transaction, index) => {
             // funcionalidade para objetos do tipo array
             // para cada elemento do array ele irá executar uma funcionalidade
-            DOM.addTransaction(transaction)
+            DOM.addTransaction(transaction, index)
         })
         
         DOM.updateBalance() // chamando a atualização do display dos cards
         
+        Storage.set(Transaction.all)
     },
     reload() {
         DOM.clearTransactions() // limpo antes de iniciar novamente, assim não repito as informações
@@ -174,3 +242,26 @@ const App = {
 }
 
 App.init()
+
+/*[
+    {
+        description: 'Luz',
+        amount: -500000, // quando tratamos dinheiro nao colocamos pontos virgulas e nem nada, usamos estratégias posteriores
+        date: '23/01/2021',
+    },
+    {
+        description: 'Website',
+        amount: 50000,
+        date: '23/01/2021',
+    },
+    {
+        description: 'Internet',
+        amount: 20000,
+        date: '23/01/2021',
+    },
+    {
+        description: 'App',
+        amount: 200000,
+        date: '23/01/2021',
+    }
+]*/
