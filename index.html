@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br"> <!-- linguagem do meu documento -->
+
+<head>
+    <!-- contém os meta dados do meu arquivo -->
+    <meta charset="UTF-8"> <!-- formatação para o conjunto de caracteres -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- se consigo acessar em qualquer tamanho de tela; ajusta o conteudo ao tamanho do dispositivo, com uma escala inicial de 1.0 -->
+    <title>dev.finance$</title> <!--título da janela -->
+
+    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,400;0,700;1,100;1,200;1,400&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- tudo que o meu usuário verá na tela depois -->
+    <header>
+        <img src="./assets/logo.svg" alt="Logo Dev Finance"> <!-- fica no lugar do título da página -->
+    </header>
+
+    <!-- container contém os cards do Balanço e a tabela das Transações -->
+    <main class="container">
+
+        <section id="balance">
+            <!-- usando a class sr-only para leitores de tela, eles não aparecem na página-->
+            <h2 class="sr-only">Balanço</h2>
+
+            <!-- 3 cards aparecem no Balanço da página inicial -->
+            <div class="card">
+                <h3>
+                    <span>Entradas</span>
+                    <img src="./assets/income.svg" alt="Imagem de entradas">
+                </h3>
+                <p>R$ 5.000,00</p>
+            </div>
+            <div class="card">
+                <h3>
+                    <span>Saídas</span>
+                    <img src="./assets/expense.svg" alt="Imagem de saídas">
+                </h3>
+                <p>R$ 2.000,00</p>
+            </div>
+            <div class="card total">
+                <h3>
+                    <span>Total</span>
+                    <img src="./assets/total.svg" alt="Imagem de total">
+                </h3>
+                <p>R$ 3.000,00</p>
+            </div>
+        </section>
+
+        <section id="transaction">
+            <h2 class="sr-only">Transações</h2>
+
+            <a href="#" onclick="Modal.open()" class="button new">+ Nova Transação</a>
+
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Valor</th>
+                        <th>Data</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div class="modal-overlay ">
+        <!-- caixa negra-->
+        <div class="modal">
+            <!-- caixa branca-->
+            <div id="form">
+                <h2>Nova Transação</h2>
+                <form action="">
+                    <div class="input-group">
+                        <label class="sr-only" for="description">Descrição</label>
+                        <input type="text" id="description" name="description" placeholder="Descrição" />
+                    </div>
+
+                    <div class="input-group">
+                        <label class="sr-only" for="">Valor</label>
+                        <input type="number" step="0.01" id="amount" name="amount" placeholder="0,00" />
+                        <small class="help">Use o sinal - (negativo) para despesas e , (vírgula) para casas
+                            decimais</small>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="sr-only" for="date">Data</label>
+                        <input type="date" id="date" name="date" placeholder="Data" />
+                    </div>
+
+                    <div class="input-group actions">
+                        <a href="#" onclick="Modal.close()" class="button cancel">Cancelar</a>
+                        <button>Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>2021 dev.finance$</footer>
+
+    <script>
+        const Modal = {
+            open() {
+                // Abrir o modal
+                // Adicionar a classe active no modal
+                document
+                    .querySelector('.modal-overlay')
+                    .classList
+                    .add('active')
+            },
+            close() {
+                // Fechar Modal
+                // Remover a classe active do modal
+                document
+                    .querySelector('.modal-overlay')
+                    .classList
+                    .remove('active')
+            }
+        }
+
+
+        const transactions = [
+            {
+                id: 1,
+                description: 'Luz',
+                amount: -50000,
+                date: '23/01/2021',
+            },
+            {
+                id: 2,
+                description: 'Website',
+                amount: 50000,
+                date: '23/01/2021',
+            },
+            {
+                id: 3,
+                description: 'Internet',
+                amount: 20000,
+                date: '23/01/2021',
+            },
+            {
+                id: 4,
+                description: 'App',
+                amount: 20000,
+                date: '23/01/2021',
+            }
+        ]
+
+        const Transaction = {
+            all: transactions, 
+            add(transaction){
+                Transaction.all.push(transaction)
+            },
+
+            incomes() {
+                let income = 0;
+                // pegar todas as transações
+
+            },
+            expenses() {
+                // somar as saídas
+            },
+            total() {
+                // entradas - saídas
+            }
+        }
+
+        // substituir os dados do HTML com os dados do JS
+
+        const DOM = {
+            transactionsContainer: document.querySelector('#data-table')
+            addTransaction(transaction, index) {
+                const tr = document.createElement('tr')
+                tr.innerHTML = DOM.innerHTMLTransaction(transaction)
+
+                DOM.transactionsContainer.appendChild(tr)
+
+            },
+
+            innerHTMLTransaction(transaction) {
+                const CSSclass = transaction.amount > 0 ? "income" : "expense"
+
+                //const amount = 
+
+                const html = `
+                <td class="description">${transaction.description}</td>
+                <td class="${CSSclass}">${amount}</td>
+                <td class="date">${transaction.date}</td>
+                <td>
+                    <img src="./assets/minus.svg" alt="Remover transação">
+                </td>
+                `
+
+                return html
+            }
+
+            updateBalance() {
+                document
+                    .getElementById('incomeDisplay')
+                    .innerHTML = Transaction.incomes() //"Soma das entradas"
+                document
+                    .getElementById('expenseDisplay')
+                    .innerHTML = Transaction.expenses() //"Soma das saídas"
+                document
+                    .getElementById('totalDisplay')
+                    .innerHTML = Transaction.total() //"Total"
+            }
+        }
+
+        const Utils = {
+            formatCurrency(value) {
+                const signal = Number(value) < 0 ? "-" : ""
+
+                value = String(value).replace(/\D/, "")
+
+                value = Number(value) / 100
+
+                //que localizacao do mundo vc esta
+                value = value.toLocaleString("pt-BR",{
+                    style: "currency",
+                    currency: "BRL"
+                })
+
+                return signal + value
+            }
+        }
+
+        transactions.forEach(function(transaction) {
+            DOM.addTransaction(transactions)
+        })
+
+        DOM.updateBalance()
+
+        Transaction.add() {
+            id: 39,
+            description: 'Alo',
+            
+        }
+
+    </script>
+</body>
+
+</html>
