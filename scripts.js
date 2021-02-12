@@ -108,13 +108,16 @@ const DOM = {
     updateBalance() {
         document
             .getElementById('incomeDisplay')
-            .innerHTML = Utils.formatCurrency(Transaction.incomes()) //"Soma das entradas"
+            .innerHTML = Utils.formatCurrency(Transaction.incomes())
+            //"Soma das entradas"
         document
             .getElementById('expenseDisplay')
-            .innerHTML = Utils.formatCurrency(Transaction.expenses()) //"Soma das saídas"
+            .innerHTML = Utils.formatCurrency(Transaction.expenses())
+            //"Soma das saídas"
         document
             .getElementById('totalDisplay')
-            .innerHTML = Utils.formatCurrency(Transaction.total()) //"Total"
+            .innerHTML = Utils.formatCurrency(Transaction.total())
+            //"Total"
     },
 
     clearTransactions()  {
@@ -195,10 +198,6 @@ const Form = {
         }
     },
 
-    saveTransaction(transaction) {
-        Transaction.add(transaction)
-    },
-
     clearFields() {
         Form.description.value = ""
         Form.amount.value = ""
@@ -211,7 +210,7 @@ const Form = {
         try {
             Form.validateFields()
             const transaction = Form.formatValues() // formatar os dados para salvar
-            Form.saveTransaction() // salvar
+            Transaction.add(transaction) // salvar
             Form.clearFields() // apagar os dados do formulario
             Modal.close() // modal feche
 
